@@ -1,8 +1,11 @@
 from datetime import datetime, time
+import pathlib
 import json
 import requests
 
-with open('settings.json') as f:
+path = pathlib.Path(__file__).parent.resolve()
+
+with open(f'{path}/settings.json') as f:
     bearer = json.load(f)['bearer']
 
 headers = {
