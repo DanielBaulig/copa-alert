@@ -25,6 +25,16 @@ slots = [{
     'end_time': "17:50",
 }]
 
+stella_id = "25349"
+customer_ids = [stella_id]
+
+customers = [x for x in requests.get(
+    f'https://apps.daysmartrecreation.com/dash/jsonapi/api/v1/customers?cache[save]=false&include=allEvents%2CteamRequests%2CcustomerNotes%2Cmemberships&filterRelations[teamRequests][accepted]=true&filterRelations[eventRegistrations][is_free_trial]=true&company=copa',
+    headers=headers
+).json()["data"] if x["type"] == "customer" and x["id"] in customer_ids]
+
+registered_events = [ event["id"].split("-")[1] for customer in customers for event in customer["relationships"]["allEvents"]["data"]]
+
 for team in teams:
     response = requests.get(
             f'https://apps.daysmartrecreation.com/dash/jsonapi/api/v1/teams/{team}?cache\[save\]=false&include=registrableEvents.summary&filterRelations\[registrableEvents\]\[publish\]=true&company=copa',
@@ -38,6 +48,8 @@ for team in teams:
 
     for event in event_summaries:
         attributes = event['attributes']
+        if event["id"] in registered_events:
+            continue
         if not attributes['registration_status'] == 'open':
             continue
         start_datetime = datetime.fromisoformat(attributes['start_date'])
