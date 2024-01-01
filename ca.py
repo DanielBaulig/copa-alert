@@ -5,14 +5,15 @@ import requests
 
 path = pathlib.Path(__file__).parent.resolve()
 
-with open(f'{path}/settings.json') as f:
+with open(f'{path}/.data.json') as f:
     bearer = json.load(f)['bearer']
 
-headers = {
-  'Accept': 'application/vnd.api+json',
-  'Accept-Language': 'en-US,en;q=0.9,de;q=0.8',
-  'Authorization': f'Bearer {bearer}',
-}
+def get_headers(bearer):
+    return {
+      'Accept': 'application/vnd.api+json',
+      'Accept-Language': 'en-US,en;q=0.9,de;q=0.8',
+      'Authorization': f'Bearer {bearer}',
+    }
 
 winter_9to11_training = 2611
 winter_9to11_speedlab = 2638
@@ -28,17 +29,49 @@ slots = [{
 stella_id = "25349"
 customer_ids = [stella_id]
 
-customers = [x for x in requests.get(
+response = requests.get(
     f'https://apps.daysmartrecreation.com/dash/jsonapi/api/v1/customers?cache[save]=false&include=allEvents%2CteamRequests%2CcustomerNotes%2Cmemberships&filterRelations[teamRequests][accepted]=true&filterRelations[eventRegistrations][is_free_trial]=true&company=copa',
-    headers=headers
-).json()["data"] if x["type"] == "customer" and x["id"] in customer_ids]
+    headers=get_headers(bearer)
+)
 
-registered_events = [ event["id"].split("-")[1] for customer in customers for event in customer["relationships"]["allEvents"]["data"]]
+if response.status_code not in range(200, 299):
+    # Assume we need to refresh auth token
+
+    with open(f'{path}/settings.json') as f:
+        settings = json.load(f)
+
+    token_payload = {
+        "grant_type": "client_credentials",
+        "client_id": settings["client_id"],
+        "client_secret": settings["client_secret"],
+        "stay_signed_in": False,
+        "company": "copa",
+        "company_code": "copa"
+    }
+
+    token_response = requests.post(
+        'https://apps.daysmartrecreation.com/dash/jsonapi/api/v1/customer/auth/token?company=copa',
+        json=token_payload
+    )
+    token_json = token_response.json()
+    bearer = token_json["access_token"]
+
+    with open(f'{path}/.data.json', 'w') as f:
+        json.dump({"bearer": bearer}, f)
+
+    response = requests.get(
+        f'https://apps.daysmartrecreation.com/dash/jsonapi/api/v1/customers?cache[save]=false&include=allEvents%2CteamRequests%2CcustomerNotes%2Cmemberships&filterRelations[teamRequests][accepted]=true&filterRelations[eventRegistrations][is_free_trial]=true&company=copa',
+        headers=get_headers(bearer)
+    )
+
+customers = [x for x in response.json()["data"] if x["type"] == "customer" and x["id"] in customer_ids]
+
+registered_events = [event["id"].split("-")[1] for customer in customers for event in customer["relationships"]["allEvents"]["data"]]
 
 for team in teams:
     response = requests.get(
             f'https://apps.daysmartrecreation.com/dash/jsonapi/api/v1/teams/{team}?cache\[save\]=false&include=registrableEvents.summary&filterRelations\[registrableEvents\]\[publish\]=true&company=copa',
-            headers=headers
+            headers=get_headers(bearer)
     )
 
     resp = response.json()
