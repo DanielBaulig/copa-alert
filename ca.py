@@ -8,6 +8,9 @@ path = pathlib.Path(__file__).parent.resolve()
 with open(f'{path}/.data.json') as f:
     bearer = json.load(f)['bearer']
 
+with open(f'{path}/settings.json') as f:
+    settings = json.load(f)
+
 def get_headers(bearer):
     return {
       'Accept': 'application/vnd.api+json',
@@ -20,11 +23,7 @@ winter_9to11_speedlab = 2638
 winter_9to11_gameplay = 2672
 teams = [winter_9to11_training, winter_9to11_speedlab, winter_9to11_gameplay]
 
-slots = [{
-    'day_of_week': 0,
-    'start_time': "16:20",
-    'end_time': "17:50",
-}]
+slots = settings["slots"]
 
 stella_id = "25349"
 customer_ids = [stella_id]
@@ -36,9 +35,6 @@ response = requests.get(
 
 if response.status_code not in range(200, 299):
     # Assume we need to refresh auth token
-
-    with open(f'{path}/settings.json') as f:
-        settings = json.load(f)
 
     token_payload = {
         "grant_type": "client_credentials",
@@ -91,12 +87,14 @@ for team in teams:
         weekday = start_datetime.weekday()
 
         for slot in slots:
-            if not start_datetime.weekday() == slot["day_of_week"]:
+            if "date" in slot and not start_datetime.date() == datetime.fromisoformat(slot["date"]).date():
+                continue
+            if "day_of_week" in slot and not start_datetime.weekday() == slot["day_of_week"]:
                 continue
             if start_time < time(*map(int, slot["start_time"].split(":"))):
                 continue
             if end_time > time(*map(int,slot["end_time"].split(":"))):
                 continue
 
-            print(f'{attributes["name"]}, {start_datetime.strftime("%A")} {start_time.strftime("%H:%M")}-{end_time.strftime("%H:%M")}, {attributes["open_slots"]} slots')
+            print(f'{attributes["name"]}, {start_datetime.strftime("%A %m/%d")} {start_time.strftime("%H:%M")}-{end_time.strftime("%H:%M")}, {attributes["open_slots"]} slots')
             break
