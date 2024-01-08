@@ -11,17 +11,14 @@ with open(f'{path}/.data.json') as f:
 with open(f'{path}/settings.json') as f:
     settings = json.load(f)
 
+teams = list(settings["teams"])
+
 def get_headers(bearer):
     return {
       'Accept': 'application/vnd.api+json',
       'Accept-Language': 'en-US,en;q=0.9,de;q=0.8',
       'Authorization': f'Bearer {bearer}',
     }
-
-winter_9to11_training = 2611
-winter_9to11_speedlab = 2638
-winter_9to11_gameplay = 2672
-teams = [winter_9to11_training, winter_9to11_speedlab, winter_9to11_gameplay]
 
 slots = settings["slots"]
 
@@ -65,8 +62,9 @@ customers = [x for x in response.json()["data"] if x["type"] == "customer" and x
 registered_events = [event["id"].split("-")[1] for customer in customers for event in customer["relationships"]["allEvents"]["data"]]
 
 for team in teams:
+    team_id = settings["teams"][team]
     response = requests.get(
-            f'https://apps.daysmartrecreation.com/dash/jsonapi/api/v1/teams/{team}?cache\[save\]=false&include=registrableEvents.summary&filterRelations\[registrableEvents\]\[publish\]=true&company=copa',
+            f'https://apps.daysmartrecreation.com/dash/jsonapi/api/v1/teams/{team_id}?cache\[save\]=false&include=registrableEvents.summary&filterRelations\[registrableEvents\]\[publish\]=true&company=copa',
             headers=get_headers(bearer)
     )
 
@@ -87,6 +85,8 @@ for team in teams:
         weekday = start_datetime.weekday()
 
         for slot in slots:
+            if team not in slot["teams"]:
+                continue
             if "date" in slot and not start_datetime.date() == datetime.fromisoformat(slot["date"]).date():
                 continue
             if "day_of_week" in slot and not start_datetime.weekday() == slot["day_of_week"]:
