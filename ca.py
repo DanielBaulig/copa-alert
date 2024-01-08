@@ -22,8 +22,7 @@ def get_headers(bearer):
 
 slots = settings["slots"]
 
-stella_id = "25349"
-customer_ids = [stella_id]
+customer_ids = [str(v) for k, v in settings["customers"].items()]
 
 response = requests.get(
     f'https://apps.daysmartrecreation.com/dash/jsonapi/api/v1/customers?cache[save]=false&include=allEvents%2CteamRequests%2CcustomerNotes%2Cmemberships&filterRelations[teamRequests][accepted]=true&filterRelations[eventRegistrations][is_free_trial]=true&company=copa',
