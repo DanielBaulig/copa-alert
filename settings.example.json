@@ -1,0 +1,26 @@
+{
+  "client_id": "your username",
+  "client_secret": "your password",
+  "teams": {
+    "winter_9to11_training": 2611,
+    "winter_9to11_speedlab": 2638,
+    "winter_9to11_gameplay": 2672
+  },
+  "customers": {
+    "my kids customer id": 12345
+  },
+  "slots": [
+    {
+        "day_of_week": 0,
+        "start_time": "16:20",
+        "end_time": "17:50",
+        "teams": ["winter_9to11_speedlab", "winter_9to11_training"]
+    },
+    {
+      "date": "2024-01-09",
+      "start_time": "15:30",
+      "end_time": "16:10",
+      "teams": ["winter_9to11_gameplay"]
+    }
+  ]
+}
