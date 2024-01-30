@@ -20,10 +20,10 @@ def get_headers(bearer):
       'Authorization': f'Bearer {bearer}',
     }
 
-slots = filter(
+slots = list(filter(
     lambda slot: not ("disabled" in slot and slot["disabled"]),
     settings["slots"],
-)
+))
 
 customer_ids = [str(v) for k, v in settings["customers"].items()]
 
