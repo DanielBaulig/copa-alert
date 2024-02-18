@@ -66,7 +66,7 @@ registered_events = [event["id"].split("-")[1] for customer in customers for eve
 for team in teams:
     team_id = settings["teams"][team]
     response = requests.get(
-            f'https://apps.daysmartrecreation.com/dash/jsonapi/api/v1/teams/{team_id}?cache\[save\]=false&include=registrableEvents.summary&filterRelations\[registrableEvents\]\[publish\]=true&company=copa',
+            f'https://apps.daysmartrecreation.com/dash/jsonapi/api/v1/teams/{team_id}?cache[save]=false&include=registrableEvents.summary&filterRelations[registrableEvents][publish]=true&company=copa',
             headers=get_headers(bearer)
     )
 
