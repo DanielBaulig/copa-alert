@@ -180,6 +180,8 @@ for team in teams:
                 continue
             if "date" in slot and not start_date == datetime.fromisoformat(slot["date"]).date():
                 continue
+            if "exclude" in slot and start_date in [datetime.fromisoformat(d).date() for d in slot["exclude"]]:
+                continue
             if "day_of_week" in slot and not start_datetime.weekday() == slot["day_of_week"]:
                 continue
             if not fits_in_slot(start_time, end_time, slot):
