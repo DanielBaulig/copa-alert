@@ -7,19 +7,21 @@
     "winter_9to11_gameplay": 2672
   },
   "customers": {
-    "my kids customer id": 12345
+    "my_kid": 12345
   },
   "slots": [
     {
         "day_of_week": 0,
         "start_time": "16:20",
         "end_time": "17:50",
+        "customer": "my_kid",
         "teams": ["winter_9to11_speedlab", "winter_9to11_training"]
     },
     {
       "date": "2024-01-09",
       "start_time": "15:30",
       "end_time": "16:10",
+      "customer": "my_kid",
       "teams": ["winter_9to11_gameplay"]
     }
   ]

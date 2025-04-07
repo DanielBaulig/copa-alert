@@ -128,6 +128,8 @@ for slot in slots:
     slot["registered_customer_events"] = []
     for ce_id in registered_customer_event_ids:
         customer_event = customer_events[ce_id]["attributes"]
+        event_customer = int(customer_event["customer_id"]);
+        slot_customer = settings["customers"][slot["customer"]]
         start_datetime = datetime.fromisoformat(customer_event["start"])
         start_time = start_datetime.time()
         end_time = datetime.fromisoformat(customer_event["end"]).time()
@@ -137,6 +139,8 @@ for slot in slots:
         if not overlaps_slot(start_time, end_time, slot):
             continue
         if not id_to_team[team_id] in slot["teams"]:
+            continue
+        if not event_customer == slot_customer:
             continue
         slot["registered_customer_events"].append(customer_event)
 log("Done")
