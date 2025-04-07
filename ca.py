@@ -207,5 +207,8 @@ for team in teams:
             if not team in remaining_teams:
                 continue
 
+            customer_id = settings["customers"][slot["customer"]]
             print(f'{attributes["name"]}, {start_datetime.strftime("%A %m/%d")} {start_time.strftime("%H:%M")}-{end_time.strftime("%H:%M")}, {attributes["open_slots"]} slots')
+            register_url = f'https://apps.daysmartrecreation.com/dash/x/#/online/copa/group/register/{team_id}?customer_id={customer_id}'
+            log(register_url)
             break
